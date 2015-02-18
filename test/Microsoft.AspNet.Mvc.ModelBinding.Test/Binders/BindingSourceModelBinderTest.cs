@@ -35,9 +35,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         {
             // Arrange
             var context = new ModelBindingContext();
-            context.ModelMetadata = new EmptyModelMetadataProvider().GetMetadataForType(
-                modelAccessor: null,
-                modelType: typeof(string));
+            context.ModelMetadata = new EmptyModelMetadataProvider().GetMetadataForType(typeof(string));
 
             var binder = new TestableBindingSourceModelBinder(BindingSource.Body);
 
@@ -54,9 +52,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         {
             // Arrange
             var context = new ModelBindingContext();
-            context.ModelMetadata = new EmptyModelMetadataProvider().GetMetadataForType(
-                modelAccessor: null,
-                modelType: typeof(string));
+            context.ModelMetadata = new EmptyModelMetadataProvider().GetMetadataForType(typeof(string));
 
             context.ModelMetadata.BinderMetadata = new ModelBinderAttribute()
             {
@@ -78,9 +74,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         {
             // Arrange
             var context = new ModelBindingContext();
-            context.ModelMetadata = new EmptyModelMetadataProvider().GetMetadataForType(
-                modelAccessor: null,
-                modelType: typeof(string));
+            context.ModelMetadata = new EmptyModelMetadataProvider().GetMetadataForType(typeof(string));
 
             context.ModelMetadata.BinderMetadata = new ModelBinderAttribute()
             {

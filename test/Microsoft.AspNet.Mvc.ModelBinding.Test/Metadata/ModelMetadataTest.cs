@@ -41,13 +41,10 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                     { m => m.DisplayName = "New display name", m => m.DisplayName, "New display name" },
                     { m => m.EditFormatString = "New edit format", m => m.EditFormatString, "New edit format" },
                     { m => m.NullDisplayText = "New null display", m => m.NullDisplayText, "New null display" },
-                    { m => m.SimpleDisplayText = "New simple display", m => m.SimpleDisplayText, "New simple display" },
+                    { m => m.SimpleDisplayProperty = "NewSimpleDisplay", m => m.SimpleDisplayProperty, "NewSimpleDisplay" },
                     { m => m.TemplateHint = "New template hint", m => m.TemplateHint, "New template hint" },
 
                     { m => m.Order = 23, m => m.Order, 23 },
-                    { m => m.Container = null, m => m.Container, null },
-                    { m => m.Container = emptycontainerModel, m => m.Container, emptycontainerModel },
-                    { m => m.Container = nonEmptycontainerModel, m => m.Container, nonEmptycontainerModel },
 
                     { m => m.BinderMetadata = null, m => m.BinderMetadata, null },
                     { m => m.BinderMetadata = binderMetadata, m => m.BinderMetadata, binderMetadata },
@@ -71,14 +68,12 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var provider = new EmptyModelMetadataProvider();
 
             // Act
-            var metadata =
-                new ModelMetadata(provider, typeof(Exception), () => "model", typeof(string), "propertyName");
+            var metadata = new ModelMetadata(provider, typeof(Exception), typeof(string), "propertyName");
 
             // Assert
             Assert.NotNull(metadata.AdditionalValues);
             Assert.Empty(metadata.AdditionalValues);
             Assert.Equal(typeof(Exception), metadata.ContainerType);
-            Assert.Null(metadata.Container);
 
             Assert.True(metadata.ConvertEmptyStringToNull);
             Assert.False(metadata.HasNonDefaultEditFormat);
@@ -99,10 +94,8 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             Assert.Null(metadata.EditFormatString);
             Assert.Null(metadata.NullDisplayText);
             Assert.Null(metadata.TemplateHint);
-
-            Assert.Equal("model", metadata.Model);
-            Assert.Equal("model", metadata.SimpleDisplayText);
-            Assert.Equal(typeof(string), metadata.RealModelType);
+            Assert.Null(metadata.SimpleDisplayProperty);
+            
             Assert.Equal(typeof(string), metadata.ModelType);
             Assert.Equal("propertyName", metadata.PropertyName);
 
@@ -127,7 +120,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: () => null,
                 modelType: typeof(object),
                 propertyName: null);
 
@@ -147,7 +139,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: () => null,
                 modelType: typeof(object),
                 propertyName: null);
             var valuesDictionary = new Dictionary<object, object>
@@ -186,7 +177,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var modelMetadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: null,
                 modelType: type,
                 propertyName: null);
 
@@ -208,7 +198,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var modelMetadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: null,
                 modelType: type,
                 propertyName: null);
 
@@ -230,7 +219,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var modelMetadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: null,
                 modelType: type,
                 propertyName: null);
 
@@ -255,7 +243,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var modelMetadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: null,
                 modelType: type,
                 propertyName: null);
 
@@ -280,10 +267,10 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var provider = new EmptyModelMetadataProvider();
 
             // Act & Assert
-            Assert.False(new ModelMetadata(provider, null, null, typeof(string), null).IsNullableValueType);
-            Assert.False(new ModelMetadata(provider, null, null, typeof(IDisposable), null).IsNullableValueType);
-            Assert.True(new ModelMetadata(provider, null, null, typeof(Nullable<int>), null).IsNullableValueType);
-            Assert.False(new ModelMetadata(provider, null, null, typeof(int), null).IsNullableValueType);
+            Assert.False(new ModelMetadata(provider, null, typeof(string), null).IsNullableValueType);
+            Assert.False(new ModelMetadata(provider, null, typeof(IDisposable), null).IsNullableValueType);
+            Assert.True(new ModelMetadata(provider, null, typeof(Nullable<int>), null).IsNullableValueType);
+            Assert.False(new ModelMetadata(provider, null, typeof(int), null).IsNullableValueType);
         }
 
         // IsRequired
@@ -298,7 +285,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var provider = new EmptyModelMetadataProvider();
             var metadata = new ModelMetadata(provider,
                                              containerType: null,
-                                             modelAccessor: null,
                                              modelType: modelType,
                                              propertyName: null);
 
@@ -318,7 +304,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var provider = new EmptyModelMetadataProvider();
             var metadata = new ModelMetadata(provider,
                                              containerType: null,
-                                             modelAccessor: null,
                                              modelType: modelType,
                                              propertyName: null);
 
@@ -340,7 +325,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: null,
                 modelType: modelType,
                 propertyName: null);
 
@@ -392,7 +376,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: null,
                 modelType: modelType,
                 propertyName: null);
 
@@ -481,7 +464,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: null,
                 modelType: modelType,
                 propertyName: null);
 
@@ -505,7 +487,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: () => new Class1(),
                 modelType: typeof(Class1),
                 propertyName: null);
 
@@ -535,7 +516,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: () => new Class1(),
                 modelType: typeof(Class1),
                 propertyName: null);
 
@@ -549,27 +529,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         }
 
         [Fact]
-        public void PropertiesListGetsResetWhenModelGetsReset()
-        {
-            // Arrange
-            var provider = new EmptyModelMetadataProvider();
-            var metadata = new ModelMetadata(provider, null, () => new Class1(), typeof(Class1), null);
-
-            // Act
-            var originalProps = metadata.Properties.ToArray();
-            metadata.Model = new Class2();
-            var newProps = metadata.Properties.ToArray();
-
-            // Assert
-            var originalProp = Assert.Single(originalProps);
-            Assert.Equal(typeof(string), originalProp.ModelType);
-            Assert.Equal("Prop1", originalProp.PropertyName);
-            var newProp = Assert.Single(newProps);
-            Assert.Equal(typeof(int), newProp.ModelType);
-            Assert.Equal("Prop2", newProp.PropertyName);
-        }
-
-        [Fact]
         public void PropertiesSetOnce()
         {
             // Arrange
@@ -577,7 +536,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: () => new Class1(),
                 modelType: typeof(Class1),
                 propertyName: null);
 
@@ -598,7 +556,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var metadata = new ModelMetadata(
                 provider,
                 containerType: null,
-                modelAccessor: () => new Class1(),
                 modelType: typeof(Class1),
                 propertyName: null);
 
@@ -632,7 +589,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         {
             // Arrange
             var provider = new EmptyModelMetadataProvider();
-            var metadata = new ModelMetadata(provider, null, () => null, typeof(object), "unusedName")
+            var metadata = new ModelMetadata(provider, null, typeof(object), "unusedName")
             {
                 DisplayName = "displayName",
             };
@@ -649,7 +606,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         {
             // Arrange
             var provider = new EmptyModelMetadataProvider();
-            var metadata = new ModelMetadata(provider, null, null, typeof(object), "PropertyName");
+            var metadata = new ModelMetadata(provider, null, typeof(object), "PropertyName");
 
             // Act
             var result = metadata.GetDisplayName();
@@ -663,64 +620,13 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         {
             // Arrange
             var provider = new EmptyModelMetadataProvider();
-            var metadata = new ModelMetadata(provider, null, null, typeof(object), null);
+            var metadata = new ModelMetadata(provider, null, typeof(object), null);
 
             // Act
             var result = metadata.GetDisplayName();
 
             // Assert
             Assert.Equal("Object", result);
-        }
-
-        // SimpleDisplayText
-
-        public static IEnumerable<object[]> SimpleDisplayTextData
-        {
-            get
-            {
-                yield return new object[]
-                        {
-                            new Func<object>(() => new ComplexClass()
-                                                {
-                                                    Prop1 = new Class1 { Prop1 = "Hello" }
-                                                }),
-                            typeof(ComplexClass),
-                            "Class1"
-                        };
-                yield return new object[]
-                    {
-                        new Func<object>(() => new Class1()),
-                        typeof(Class1),
-                        "Class1"
-                    };
-                yield return new object[]
-                    {
-                        new Func<object>(() => new ClassWithNoProperties()),
-                        typeof(ClassWithNoProperties),
-                        string.Empty
-                    };
-                yield return new object[]
-                    {
-                        null,
-                        typeof(object),
-                        null
-                    };
-            }
-        }
-
-        [Theory]
-        [MemberData(nameof(SimpleDisplayTextData))]
-        public void TestSimpleDisplayText(Func<object> modelAccessor, Type modelType, string expectedResult)
-        {
-            // Arrange
-            var provider = new EmptyModelMetadataProvider();
-            var metadata = new ModelMetadata(provider, null, modelAccessor, modelType, null);
-
-            // Act
-            var result = metadata.SimpleDisplayText;
-
-            // Assert
-            Assert.Equal(expectedResult, result);
         }
 
         private class ClassWithNoProperties
@@ -773,7 +679,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                     var metadata = new ModelMetadata(
                         this,
                         containerType: typeof(DummyContactModel),
-                        modelAccessor: null,
                         modelType: typeof(string),
                         propertyName: propertyName);
 
@@ -788,7 +693,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                     var metadata = new ModelMetadata(
                         this,
                         containerType: typeof(DummyContactModel),
-                        modelAccessor: null,
                         modelType: typeof(string),
                         propertyName: keyValuePair.Key)
                     {
@@ -802,31 +706,21 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             public int GetMetadataForPropertiesCalls { get; private set; }
 
             public ModelMetadata GetMetadataForParameter(
-                Func<object> modelAccessor,
                 [NotNull] MethodInfo methodInfo,
                 [NotNull] string parameterName)
             {
                 throw new NotImplementedException();
             }
 
-            public IEnumerable<ModelMetadata> GetMetadataForProperties(object container, [NotNull] Type containerType)
+            public IEnumerable<ModelMetadata> GetMetadataForProperties([NotNull] Type containerType)
             {
-                Assert.Null(container);
                 Assert.Equal(typeof(object), containerType);
                 GetMetadataForPropertiesCalls++;
 
                 return _properties;
             }
 
-            public ModelMetadata GetMetadataForProperty(
-                Func<object> modelAccessor,
-                [NotNull] Type containerType,
-                [NotNull] string propertyName)
-            {
-                throw new NotImplementedException();
-            }
-
-            public ModelMetadata GetMetadataForType(Func<object> modelAccessor, [NotNull] Type modelType)
+            public ModelMetadata GetMetadataForType([NotNull] Type modelType)
             {
                 throw new NotImplementedException();
             }

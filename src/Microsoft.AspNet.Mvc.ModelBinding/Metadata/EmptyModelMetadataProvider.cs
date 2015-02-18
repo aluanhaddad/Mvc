@@ -25,7 +25,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             return new ModelMetadata(
                 this,
                 containerType,
-                modelAccessor: null,
                 modelType: modelType,
                 propertyName: propertyName);
         }
@@ -35,13 +34,11 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         /// Copies very few values from the <paramref name="prototype"/>. Likely <paramref name="prototype"/> has not
         /// been modified except to add <see cref="ModelMetadata.AdditionalValues"/> entries.
         /// </remarks>
-        protected override ModelMetadata CreateMetadataFromPrototype([NotNull] ModelMetadata prototype,
-                                                                     Func<object> modelAccessor)
+        protected override ModelMetadata CreateMetadataFromPrototype([NotNull] ModelMetadata prototype)
         {
             var metadata = new ModelMetadata(
                 this,
                 prototype.ContainerType,
-                modelAccessor,
                 prototype.ModelType,
                 prototype.PropertyName);
             foreach (var keyValuePair in prototype.AdditionalValues)

@@ -147,9 +147,7 @@ namespace Microsoft.AspNet.Mvc
                [NotNull] Func<ModelBindingContext, string, bool> predicate)
            where TModel : class
         {
-            var modelMetadata = metadataProvider.GetMetadataForType(
-                modelAccessor: () => model,
-                modelType: model.GetType());
+            var modelMetadata = metadataProvider.GetMetadataForType(model?.GetType() ?? typeof(TModel));
 
             var operationBindingContext = new OperationBindingContext
             {
@@ -161,6 +159,7 @@ namespace Microsoft.AspNet.Mvc
 
             var modelBindingContext = new ModelBindingContext
             {
+                Model = model,
                 ModelMetadata = modelMetadata,
                 ModelName = prefix,
                 ModelState = modelState,
@@ -173,7 +172,8 @@ namespace Microsoft.AspNet.Mvc
             var modelBindingResult = await modelBinder.BindModelAsync(modelBindingContext);
             if (modelBindingResult != null)
             {
-                var modelValidationContext = new ModelValidationContext(modelBindingContext, modelMetadata);
+                var modelExplorer = new ModelExplorer(modelMetadata, modelBindingResult.Model);
+                var modelValidationContext = new ModelValidationContext(modelBindingContext, modelExplorer);
                 modelValidationContext.RootPrefix = prefix;
                 objectModelValidator.Validate(modelValidationContext);
                 return modelState.IsValid;

@@ -89,20 +89,20 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateCheckBox(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression,
             bool? isChecked,
             object htmlAttributes)
         {
-            if (metadata != null)
+            if (modelExplorer != null)
             {
                 // CheckBoxFor() case. That API does not support passing isChecked directly.
                 Debug.Assert(!isChecked.HasValue);
 
-                if (metadata.Model != null)
+                if (modelExplorer.Model != null)
                 {
                     bool modelChecked;
-                    if (Boolean.TryParse(metadata.Model.ToString(), out modelChecked))
+                    if (Boolean.TryParse(modelExplorer.Model.ToString(), out modelChecked))
                     {
                         isChecked = modelChecked;
                     }
@@ -120,10 +120,10 @@ namespace Microsoft.AspNet.Mvc.Rendering
             return GenerateInput(
                 viewContext,
                 InputType.CheckBox,
-                metadata,
+                modelExplorer,
                 expression,
                 value: "true",
-                useViewData: (metadata == null && !isChecked.HasValue),
+                useViewData: (modelExplorer == null && !isChecked.HasValue),
                 isChecked: isChecked ?? false,
                 setId: true,
                 isExplicitValue: false,
@@ -134,7 +134,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateHiddenForCheckbox(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression)
         {
             var tagBuilder = new TagBuilder("input");
@@ -201,7 +201,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateHidden(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression,
             object value,
             bool useViewData,
@@ -218,7 +218,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
             return GenerateInput(
                 viewContext,
                 InputType.Hidden,
-                metadata,
+                modelExplorer,
                 expression,
                 value,
                 useViewData,
@@ -232,12 +232,12 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateLabel(
             [NotNull] ViewContext viewContext,
-            [NotNull] ModelMetadata metadata,
+            [NotNull] ModelExplorer modelExplorer,
             string expression,
             string labelText,
             object htmlAttributes)
         {
-            var resolvedLabelText = labelText ?? metadata.DisplayName ?? metadata.PropertyName;
+            var resolvedLabelText = labelText ?? modelExplorer.Metadata.DisplayName ?? modelExplorer.Metadata.PropertyName;
             if (resolvedLabelText == null)
             {
                 resolvedLabelText =
@@ -262,7 +262,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GeneratePassword(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression,
             object value,
             object htmlAttributes)
@@ -271,7 +271,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
             return GenerateInput(
                 viewContext,
                 InputType.Password,
-                metadata,
+                modelExplorer,
                 expression,
                 value,
                 useViewData: false,
@@ -285,14 +285,14 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateRadioButton(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression,
             object value,
             bool? isChecked,
             object htmlAttributes)
         {
             var htmlAttributeDictionary = GetHtmlAttributeDictionaryOrNull(htmlAttributes);
-            if (metadata == null)
+            if (modelExplorer == null)
             {
                 // RadioButton() case. Do not override checked attribute if isChecked is implicit.
                 if (!isChecked.HasValue &&
@@ -321,7 +321,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
                 // Need a value to determine isChecked.
                 Debug.Assert(value != null);
 
-                var model = metadata.Model;
+                var model = modelExplorer.Model;
                 var valueString = Convert.ToString(value, CultureInfo.CurrentCulture);
                 isChecked = model != null &&
                     string.Equals(model.ToString(), valueString, StringComparison.OrdinalIgnoreCase);
@@ -336,7 +336,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
             return GenerateInput(
                 viewContext,
                 InputType.Radio,
-                metadata,
+                modelExplorer,
                 expression,
                 value,
                 useViewData: false,
@@ -364,7 +364,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public TagBuilder GenerateSelect(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string optionLabel,
             string expression,
             IEnumerable<SelectListItem> selectList,
@@ -374,7 +374,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
             ICollection<string> ignored;
             return GenerateSelect(
                 viewContext,
-                metadata,
+                modelExplorer,
                 optionLabel,
                 expression,
                 selectList,
@@ -386,7 +386,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateSelect(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string optionLabel,
             string expression,
             IEnumerable<SelectListItem> selectList,
@@ -427,9 +427,9 @@ namespace Microsoft.AspNet.Mvc.Rendering
                 {
                     defaultValue = viewContext.ViewData.Eval(expression);
                 }
-                else if (metadata != null)
+                else if (modelExplorer != null)
                 {
-                    defaultValue = metadata.Model;
+                    defaultValue = modelExplorer.Model;
                 }
             }
 
@@ -468,7 +468,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
                 }
             }
 
-            tagBuilder.MergeAttributes(GetValidationAttributes(viewContext, metadata, expression));
+            tagBuilder.MergeAttributes(GetValidationAttributes(viewContext, modelExplorer, expression));
 
             return tagBuilder;
         }
@@ -476,7 +476,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateTextArea(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression,
             int rows,
             int columns,
@@ -508,9 +508,9 @@ namespace Microsoft.AspNet.Mvc.Rendering
             {
                 value = modelState.Value.AttemptedValue;
             }
-            else if (metadata.Model != null)
+            else if (modelExplorer.Model != null)
             {
-                value = metadata.Model.ToString();
+                value = modelExplorer.Model.ToString();
             }
 
             var tagBuilder = new TagBuilder("textarea");
@@ -527,7 +527,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
             }
 
             tagBuilder.MergeAttribute("name", fullName, true);
-            tagBuilder.MergeAttributes(GetValidationAttributes(viewContext, metadata, expression));
+            tagBuilder.MergeAttributes(GetValidationAttributes(viewContext, modelExplorer, expression));
 
             // If there are any errors for a named field, we add this CSS attribute.
             if (modelState != null && modelState.Errors.Count > 0)
@@ -545,7 +545,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public virtual TagBuilder GenerateTextBox(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression,
             object value,
             string format,
@@ -555,10 +555,10 @@ namespace Microsoft.AspNet.Mvc.Rendering
             return GenerateInput(
                 viewContext,
                 InputType.Text,
-                metadata,
+                modelExplorer,
                 expression,
                 value,
-                useViewData: (metadata == null && value == null),
+                useViewData: (modelExplorer == null && value == null),
                 isChecked: false,
                 setId: true,
                 isExplicitValue: true,
@@ -725,17 +725,17 @@ namespace Microsoft.AspNet.Mvc.Rendering
         /// <inheritdoc />
         public IEnumerable<ModelClientValidationRule> GetClientValidationRules(
             [NotNull] ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression)
         {
             var validatorProvider = _bindingContextAccessor.Value.ValidatorProvider;
-            metadata = metadata ??
+            modelExplorer = modelExplorer ??
                 ExpressionMetadataProvider.FromStringExpression(expression, viewContext.ViewData, _metadataProvider);
             var validationContext =
-                new ClientModelValidationContext(metadata, _metadataProvider, viewContext.HttpContext.RequestServices);
+                new ClientModelValidationContext(modelExplorer.Metadata, _metadataProvider, viewContext.HttpContext.RequestServices);
 
             return validatorProvider
-                .GetValidators(metadata)
+                .GetValidators(modelExplorer.Metadata)
                 .OfType<IClientModelValidator>()
                 .SelectMany(v => v.GetClientValidationRules(validationContext));
         }
@@ -831,7 +831,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         protected virtual TagBuilder GenerateInput(
             [NotNull] ViewContext viewContext,
             InputType inputType,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression,
             object value,
             bool useViewData,
@@ -925,7 +925,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
                 tagBuilder.AddCssClass(HtmlHelper.ValidationInputCssClassName);
             }
 
-            tagBuilder.MergeAttributes(GetValidationAttributes(viewContext, metadata, expression));
+            tagBuilder.MergeAttributes(GetValidationAttributes(viewContext, modelExplorer, expression));
 
             return tagBuilder;
         }
@@ -950,7 +950,7 @@ namespace Microsoft.AspNet.Mvc.Rendering
         // never rendered validation for a field with this name in this form.
         protected virtual IDictionary<string, object> GetValidationAttributes(
             ViewContext viewContext,
-            ModelMetadata metadata,
+            ModelExplorer modelExplorer,
             string expression)
         {
             var formContext = viewContext.ClientValidationEnabled ? viewContext.FormContext : null;
@@ -966,7 +966,8 @@ namespace Microsoft.AspNet.Mvc.Rendering
             }
 
             formContext.RenderedField(fullName, true);
-            var clientRules = GetClientValidationRules(viewContext, metadata, expression);
+
+            var clientRules = GetClientValidationRules(viewContext, modelExplorer, expression);
 
             return UnobtrusiveValidationAttributesGenerator.GetValidationAttributes(clientRules);
         }
