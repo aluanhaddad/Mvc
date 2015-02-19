@@ -191,7 +191,9 @@ namespace Microsoft.AspNet.Mvc.TagHelpers
             var metadataProvider = new DataAnnotationsModelMetadataProvider();
 
             // Property name is either nameof(Model.Text) or nameof(NestedModel.Text).
-            var modelExplorer = metadataProvider.GetModelExplorerForType(containerType, modelAccessor).GetProperty("Text");
+            var modelExplorer = metadataProvider
+                .GetModelExplorerForType(containerType, modelAccessor)
+                .GetExplorerForProperty("Text");
             var modelExpression = new ModelExpression(nameAndId.Name, modelExplorer);
 
             var tagHelperContext = new TagHelperContext(
@@ -271,7 +273,9 @@ namespace Microsoft.AspNet.Mvc.TagHelpers
             var metadataProvider = new DataAnnotationsModelMetadataProvider();
 
             // Property name is either nameof(Model.Text) or nameof(NestedModel.Text).
-            var modelExplorer = metadataProvider.GetModelExplorerForType(containerType, modelAccessor).GetProperty("Text");
+            var modelExplorer = metadataProvider
+                .GetModelExplorerForType(containerType, modelAccessor)
+                .GetExplorerForProperty("Text");
             var modelExpression = new ModelExpression(nameAndId.Name, modelExplorer);
 
             var tagHelperContext = new TagHelperContext(
