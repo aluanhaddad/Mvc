@@ -1502,6 +1502,8 @@ namespace Microsoft.AspNet.Mvc.FunctionalTests
             var client = server.CreateClient();
             var url = "http://localhost/vehicles/42";
 
+            System.Diagnostics.Debugger.Launch();
+
             // Act
             var response = await client.GetAsync(url);
 

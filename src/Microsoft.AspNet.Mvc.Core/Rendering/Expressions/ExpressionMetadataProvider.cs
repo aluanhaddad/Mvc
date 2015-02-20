@@ -12,8 +12,8 @@ namespace Microsoft.AspNet.Mvc.Rendering.Expressions
 {
     public static class ExpressionMetadataProvider
     {
-        public static ModelExplorer FromLambdaExpression<TModel, TValue>(
-            [NotNull] Expression<Func<TModel, TValue>> expression,
+        public static ModelExplorer FromLambdaExpression<TModel, TResult>(
+            [NotNull] Expression<Func<TModel, TResult>> expression,
             [NotNull] ViewDataDictionary<TModel> viewData,
             IModelMetadataProvider metadataProvider)
         {
@@ -55,12 +55,11 @@ namespace Microsoft.AspNet.Mvc.Rendering.Expressions
                 throw new InvalidOperationException(Resources.TemplateHelpers_TemplateLimitations);
             }
 
-            var container = viewData.Model;
-            Func<object, object> modelAccessor = (c) =>
+            Func<object, object> modelAccessor = (container) =>
             {
                 try
                 {
-                    return CachedExpressionCompiler.Process(expression)((TModel)c);
+                    return CachedExpressionCompiler.Process(expression)((TModel)container);
                 }
                 catch (NullReferenceException)
                 {
@@ -75,7 +74,7 @@ namespace Microsoft.AspNet.Mvc.Rendering.Expressions
                 //    m => 5 (arbitrary expression)
                 //    m => foo (arbitrary expression)
                 //    m => m.Widgets[0] (expression ending with non-property-access)
-                metadata = metadataProvider.GetMetadataForType(typeof(TValue));
+                metadata = metadataProvider.GetMetadataForType(typeof(TResult));
             }
             else
             {
@@ -114,8 +113,6 @@ namespace Microsoft.AspNet.Mvc.Rendering.Expressions
 
             if (viewDataInfo != null)
             {
-                Func<object, object> modelAccessor = (ignore) => viewDataInfo.Value;
-
                 ModelExplorer containerExplorer = viewData.ModelExplorer;
                 if (viewDataInfo.Container != null)
                 {
@@ -131,13 +128,14 @@ namespace Microsoft.AspNet.Mvc.Rendering.Expressions
                     var containerMetadata = metadataProvider.GetMetadataForType(viewDataInfo.Container.GetType());
                     var propertyMetadata = containerMetadata.Properties[viewDataInfo.PropertyInfo.Name];
 
+                    Func<object, object> modelAccessor = (ignore) => viewDataInfo.Value;
                     return containerExplorer.GetExplorerForExpression(propertyMetadata, modelAccessor);
                 }
                 else if (viewDataInfo.Value != null)
                 {
                     // We have a value, even though we may not know where it came from.
                     var valueMetadata = metadataProvider.GetMetadataForType(viewDataInfo.Value.GetType());
-                    return containerExplorer.GetExplorerForExpression(valueMetadata, modelAccessor);
+                    return containerExplorer.GetExplorerForExpression(valueMetadata, viewDataInfo.Value);
                 }
             }
 
@@ -154,7 +152,7 @@ namespace Microsoft.AspNet.Mvc.Rendering.Expressions
             {
                 // Use common simple type rather than object so e.g. Editor() at least generates a TextBox.
                 var model = viewData.Model == null ? null : Convert.ToString(viewData.Model, CultureInfo.CurrentCulture);
-                return metadataProvider.GetModelExplorerForType(typeof(string), null);
+                return metadataProvider.GetModelExplorerForType(typeof(string), model);
             }
             else
             {
