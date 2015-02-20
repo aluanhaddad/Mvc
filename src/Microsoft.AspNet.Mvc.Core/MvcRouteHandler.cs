@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Cors.Core;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Mvc.Core;
 using Microsoft.AspNet.Mvc.Internal;
@@ -30,6 +31,11 @@ namespace Microsoft.AspNet.Mvc
             return null;
         }
 
+        private bool IsCorsRequest(HttpContext context)
+        {
+            return context.Request.Headers.ContainsKey(CorsConstants.Origin);
+        }
+
         public async Task RouteAsync([NotNull] RouteContext context)
         {
             var services = context.HttpContext.RequestServices;
@@ -42,12 +48,34 @@ namespace Microsoft.AspNet.Mvc
             using (_logger.BeginScope("MvcRouteHandler.RouteAsync"))
             {
                 var actionSelector = services.GetRequiredService<IActionSelector>();
-                var actionDescriptor = await actionSelector.SelectAsync(context);
+                var currentVerb = context.HttpContext.Request.Method;
 
-                if (actionDescriptor == null)
+                ActionDescriptor actionDescriptor;
+                try
                 {
-                    LogActionSelection(actionSelected: false, actionInvoked: false, handled: context.IsHandled);
-                    return;
+                    if (IsCorsRequest(context.HttpContext))
+                    {
+                        // Update the http method if it is preflight request.
+                        var corsContext = new CorsRequestContext(context.HttpContext);
+                        if (corsContext.IsPreflight)
+                        {
+                            // change the data in the route context to affect action selection.
+                            // If it is a pre flight request then this needs to be updated.
+                            // for a normal request we do not need to change the http verb.
+                            context.HttpContext.Request.Method = corsContext.HttpMethod;
+                        }
+                    }
+
+                    actionDescriptor = await actionSelector.SelectAsync(context);
+                    if (actionDescriptor == null)
+                    {
+                        LogActionSelection(actionSelected: false, actionInvoked: false, handled: context.IsHandled);
+                        return;
+                    }
+                }
+                finally
+                {
+                    context.HttpContext.Request.Method = currentVerb;
                 }
 
                 // Replacing the route data allows any code running here to dirty the route values or data-tokens

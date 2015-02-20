@@ -2,9 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.AspNet.Cors.Core;
 using Microsoft.AspNet.Mvc.Core;
 using Microsoft.Framework.DependencyInjection;
+using System.Linq;
 
 namespace Microsoft.AspNet.Mvc.Filters
 {
@@ -26,8 +29,11 @@ namespace Microsoft.AspNet.Mvc.Filters
         {
             if (context.ActionContext.ActionDescriptor.FilterDescriptors != null)
             {
-                foreach (var item in context.Results)
+                var corsFilter = context.Results.SingleOrDefault(filter => filter.Descriptor.Filter is ICorsPolicyProvider);
+                ProvideFilter(context, corsFilter);
+                foreach (var item in context.Results.Where(filter => !(filter is ICorsPolicyProvider)))
                 {
+
                     ProvideFilter(context, item);
                 }
             }
