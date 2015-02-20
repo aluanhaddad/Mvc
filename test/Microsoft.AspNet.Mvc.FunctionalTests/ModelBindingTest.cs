@@ -1743,14 +1743,14 @@ namespace Microsoft.AspNet.Mvc.FunctionalTests
                         new[]
                         {
                             ":Required property 'Id' not found in JSON",
-                            "drawing.Lines:The Lines field is required."
+                            "rectangle.Lines:The Lines field is required."
                         }
                     },
                     {
                         "{\"Id\":10}",
                         new[]
                         {
-                            "drawing.Lines:The Lines field is required."
+                            "rectangle.Lines:The Lines field is required."
                         }
                     },
                     {
@@ -1785,7 +1785,7 @@ namespace Microsoft.AspNet.Mvc.FunctionalTests
 
             // Act
             var response = await client.PostAsync(
-                "http://localhost/Validation/RequiredAttributeOnValueAndReferenceTypes", 
+                "http://localhost/Validation/CreateRectangle", 
                 content);
 
             // Assert
@@ -1798,7 +1798,6 @@ namespace Microsoft.AspNet.Mvc.FunctionalTests
                 Assert.Contains(
                     actualModelStateErrorMessages,
                     (actualErrorMessage) => actualErrorMessage.StartsWith(expectedErrorMessage));
-                
             }
         }
     }

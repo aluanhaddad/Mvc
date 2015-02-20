@@ -23,14 +23,14 @@ namespace ModelBindingWebSite.Controllers
             return ModelState.IsValid;
         }
 
-        public IActionResult RequiredAttributeOnValueAndReferenceTypes([FromBody] Rectangle drawing)
+        public IActionResult CreateRectangle([FromBody] Rectangle rectangle)
         {
             if (!ModelState.IsValid)
             {
                 return new ObjectResult(GetModelStateErrorMessages(ModelState)) { StatusCode = 400 };
             }
 
-            return new ObjectResult(drawing);
+            return new ObjectResult(rectangle);
         }
 
         private IEnumerable<string> GetModelStateErrorMessages(ModelStateDictionary modelStateDictionary)
