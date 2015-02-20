@@ -40,14 +40,14 @@ namespace Microsoft.AspNet.Mvc.Razor
             fileProvider.AddFile(ViewPath, "some content");
             var cache = new CompilerCache(Enumerable.Empty<RazorFileInfoCollection>(), fileProvider);
             var type = GetType();
-            var expected = UncachedCompilationResult.Successful(type, "hello world");
+            var expected = new UncachedCompilationResult(type, "hello world");
 
             // Act
             var result = cache.GetOrAdd(ViewPath, _ => expected);
 
             // Assert
             Assert.NotSame(CompilerCacheResult.FileNotFound, result);
-            var actual = result.CompilationResult;
+            var actual = Assert.IsType<UncachedCompilationResult>(result.CompilationResult);
             Assert.NotNull(actual);
             Assert.Same(expected, actual);
             Assert.Equal("hello world", actual.CompiledContent);
@@ -62,7 +62,7 @@ namespace Microsoft.AspNet.Mvc.Razor
             fileProvider.AddFile(ViewPath, "some content");
             var cache = new CompilerCache(Enumerable.Empty<RazorFileInfoCollection>(), fileProvider);
             var type = typeof(RuntimeCompileIdentical);
-            var expected = UncachedCompilationResult.Successful(type, "hello world");
+            var expected = new UncachedCompilationResult(type, "hello world");
 
             // Act 1
             var result1 = cache.GetOrAdd(ViewPath, _ => expected);
@@ -90,8 +90,8 @@ namespace Microsoft.AspNet.Mvc.Razor
             fileProvider.AddFile(ViewPath, "some content");
             var cache = new CompilerCache(Enumerable.Empty<RazorFileInfoCollection>(), fileProvider);
             var type = typeof(RuntimeCompileIdentical);
-            var expected1 = UncachedCompilationResult.Successful(type, "hello world");
-            var expected2 = UncachedCompilationResult.Successful(type, "different content");
+            var expected1 = new UncachedCompilationResult(type, "hello world");
+            var expected2 = new UncachedCompilationResult(type, "different content");
 
             // Act 1
             var result1 = cache.GetOrAdd(ViewPath, _ => expected1);
@@ -118,7 +118,7 @@ namespace Microsoft.AspNet.Mvc.Razor
             fileProvider.AddFile(ViewPath, "some content");
             var cache = new CompilerCache(Enumerable.Empty<RazorFileInfoCollection>(), fileProvider);
             var type = typeof(RuntimeCompileIdentical);
-            var expected = UncachedCompilationResult.Successful(type, "hello world");
+            var expected = new UncachedCompilationResult(type, "hello world");
 
             // Act 1
             var result1 = cache.GetOrAdd(ViewPath, _ => expected);
@@ -260,7 +260,7 @@ namespace Microsoft.AspNet.Mvc.Razor
 
             // Act
             var result = cache.GetOrAdd(ViewPath,
-                                        compile: _ => CompilationResult.Successful(resultViewType));
+                                        compile: _ => new CompilationResult(resultViewType));
 
             // Assert
             Assert.NotSame(CompilerCacheResult.FileNotFound, result);
@@ -410,7 +410,7 @@ namespace Microsoft.AspNet.Mvc.Razor
             var globalTrigger = fileProvider.GetTrigger("Views\\_GlobalImport.cshtml");
             globalTrigger.IsExpired = true;
             var result2 = cache.GetOrAdd(testFile.PhysicalPath,
-                                         compile: _ => CompilationResult.Successful(expectedType));
+                                         compile: _ => new CompilationResult(expectedType));
 
             // Assert 2
             Assert.NotSame(CompilerCacheResult.FileNotFound, result2);
@@ -472,7 +472,7 @@ namespace Microsoft.AspNet.Mvc.Razor
             var trigger = fileProvider.GetTrigger(globalFileInfo.PhysicalPath);
             trigger.IsExpired = true;
             var result2 = cache.GetOrAdd(viewFileInfo.PhysicalPath,
-                                         compile: _ => CompilationResult.Successful(expectedType));
+                                         compile: _ => new CompilationResult(expectedType));
 
             // Assert 2
             Assert.NotSame(CompilerCacheResult.FileNotFound, result2);
@@ -546,7 +546,7 @@ namespace Microsoft.AspNet.Mvc.Razor
 
             // Act
             var result = cache.GetOrAdd(fileInfo.PhysicalPath,
-                                        compile: _ => CompilationResult.Successful(expectedType));
+                                        compile: _ => new CompilationResult(expectedType));
 
             // Assert
             Assert.NotSame(CompilerCacheResult.FileNotFound, result);
@@ -569,27 +569,22 @@ namespace Microsoft.AspNet.Mvc.Razor
             };
             fileProvider.AddFile("test", fileInfo);
             var type = GetType();
-            var uncachedResult = UncachedCompilationResult.Successful(type, "hello world");
+            var uncachedResult = new UncachedCompilationResult(type, "hello world");
 
             // Act
             cache.GetOrAdd("test", _ => uncachedResult);
-            var result1 = cache.GetOrAdd("test", _ => uncachedResult);
-            var result2 = cache.GetOrAdd("test", _ => uncachedResult);
+            var result1 = cache.GetOrAdd("test", _ => { throw new Exception("shouldn't be called."); });
+            var result2 = cache.GetOrAdd("test", _ => { throw new Exception("shouldn't be called."); });
 
             // Assert
             Assert.NotSame(CompilerCacheResult.FileNotFound, result1);
             Assert.NotSame(CompilerCacheResult.FileNotFound, result2);
 
-            var actual1 = result1.CompilationResult;
-            var actual2 = result2.CompilationResult;
+            var actual1 = Assert.IsType<CompilationResult>(result1.CompilationResult);
+            var actual2 = Assert.IsType<CompilationResult>(result2.CompilationResult);
             Assert.NotSame(uncachedResult, actual1);
             Assert.NotSame(uncachedResult, actual2);
-            var result = Assert.IsType<CompilationResult>(actual1);
-            Assert.Null(actual1.CompiledContent);
             Assert.Same(type, actual1.CompiledType);
-
-            result = Assert.IsType<CompilationResult>(actual2);
-            Assert.Null(actual2.CompiledContent);
             Assert.Same(type, actual2.CompiledType);
         }
     }

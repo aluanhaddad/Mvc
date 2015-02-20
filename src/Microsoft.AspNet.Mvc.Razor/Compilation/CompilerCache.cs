@@ -136,7 +136,7 @@ namespace Microsoft.AspNet.Mvc.Razor
                     cacheEntry.IsValidatedPreCompiled = true;
                     return new GetOrAddResult
                     {
-                        CompilationResult = CompilationResult.Successful(cacheEntry.CompiledType),
+                        CompilationResult = new CompilationResult(cacheEntry.CompiledType),
                         CompilerCacheEntry = cacheEntry
                     };
                 }
@@ -154,7 +154,7 @@ namespace Microsoft.AspNet.Mvc.Razor
                     cacheEntry.IsValidatedPreCompiled = true;
                     return new GetOrAddResult
                     {
-                        CompilationResult = CompilationResult.Successful(cacheEntry.CompiledType),
+                        CompilationResult = new CompilationResult(cacheEntry.CompiledType),
                         CompilerCacheEntry = cacheEntry
                     };
                 }
@@ -165,7 +165,7 @@ namespace Microsoft.AspNet.Mvc.Razor
 
             return new GetOrAddResult
             {
-                CompilationResult = CompilationResult.Successful(cacheEntry.CompiledType),
+                CompilationResult = new CompilationResult(cacheEntry.CompiledType),
                 CompilerCacheEntry = cacheEntry
             };
         }
@@ -174,7 +174,7 @@ namespace Microsoft.AspNet.Mvc.Razor
                                            string normalizedPath,
                                            Func<RelativeFileInfo, CompilationResult> compile)
         {
-            var compilationResult = compile(file);
+            var compilationResult = compile(file).EnsureSuccessful();
 
             // Concurrent addition to MemoryCache with the same key result in safe race.
             var cacheEntry = _cache.Set(normalizedPath,

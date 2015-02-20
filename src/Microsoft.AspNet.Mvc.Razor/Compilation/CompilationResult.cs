@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.AspNet.FileProviders;
+using Microsoft.Framework.Runtime;
 
 namespace Microsoft.AspNet.Mvc.Razor
 {
@@ -13,119 +11,49 @@ namespace Microsoft.AspNet.Mvc.Razor
     /// </summary>
     public class CompilationResult
     {
-        private Type _type;
-
         /// <summary>
-        /// Creates a new instance of <see cref="CompilationResult"/>.
+        /// Creates a new instance of <see cref="CompilationResult"/> that represents a success in compilation.
         /// </summary>
-        protected CompilationResult()
+        /// <param name="type">The compiled type.</param>
+        public CompilationResult([NotNull] Type compiledType)
         {
+            CompiledType = compiledType;
         }
-
-        /// <summary>
-        /// Gets the path of the Razor file that was compiled.
-        /// </summary>
-        public string FilePath
-        {
-            get
-            {
-                if (File != null)
-                {
-                    return File.PhysicalPath;
-                }
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Gets a sequence of <see cref="CompilationMessage"/> instances encountered during compilation.
-        /// </summary>
-        public IEnumerable<CompilationMessage> Messages { get; private set; }
-
-        /// <summary>
-        /// Gets (or sets in derived types) the generated C# content that was compiled.
-        /// </summary>
-        public string CompiledContent { get; protected set; }
-
-        /// <summary>
-        /// Gets (or sets in derived types) the type produced as a result of compilation.
-        /// </summary>
-        /// <exception cref="CompilationFailedException">An error occured during compilation.</exception>
-        public Type CompiledType
-        {
-            get
-            {
-                if (_type == null)
-                {
-                    throw CreateCompilationFailedException();
-                }
-
-                return _type;
-            }
-            protected set
-            {
-                _type = value;
-            }
-        }
-
-        private IFileInfo File { get; set; }
 
         /// <summary>
         /// Creates a <see cref="CompilationResult"/> that represents a failure in compilation.
         /// </summary>
-        /// <param name="fileInfo">The <see cref="IFileInfo"/> for the Razor file that was compiled.</param>
-        /// <param name="compilationContent">The generated C# content to be compiled.</param>
-        /// <param name="messages">The sequence of failure messages encountered during compilation.</param>
-        /// <returns>A CompilationResult instance representing a failure.</returns>
-        public static CompilationResult Failed([NotNull] IFileInfo file,
-                                               [NotNull] string compilationContent,
-                                               [NotNull] IEnumerable<CompilationMessage> messages)
+        /// <param name="compilationFailure">The <see cref="ICompilationFailure"/> produced from parsing or
+        /// compiling the Razor file.</param>
+        public CompilationResult([NotNull] ICompilationFailure compilationFailure)
         {
-            return new CompilationResult
-            {
-                File = file,
-                CompiledContent = compilationContent,
-                Messages = messages,
-            };
+            CompilationFailure = compilationFailure;
         }
 
         /// <summary>
-        /// Creates a <see cref="CompilationResult"/> that represents a success in compilation.
+        /// Gets the type produced as a result of compilation.
         /// </summary>
-        /// <param name="type">The compiled type.</param>
-        /// <returns>A CompilationResult instance representing a success.</returns>
-        public static CompilationResult Successful([NotNull] Type type)
-        {
-            return new CompilationResult
-            {
-                CompiledType = type
-            };
-        }
+        /// <remarks>This property is null when compilation fails.</remarks>
+        public Type CompiledType { get; }
 
-        private CompilationFailedException CreateCompilationFailedException()
-        {
-            var fileContent = ReadContent(File);
-            var compilationFailure = new CompilationFailure(FilePath, fileContent, CompiledContent, Messages);
-            return new CompilationFailedException(compilationFailure);
-        }
+        /// <summary>
+        /// Gets the type produced as a result of compilation.
+        /// </summary>
+        /// <remarks>This property is null when compilation succeeds.</remarks>
+        public ICompilationFailure CompilationFailure { get; }
 
-        private static string ReadContent(IFileInfo file)
+        /// <summary>
+        /// Throws an exception if compilation has failed.
+        /// </summary>
+        /// <returns>The current <see cref="CompilationResult"/> instance.</returns>
+        public CompilationResult EnsureSuccessful()
         {
-            try
+            if (CompilationFailure != null)
             {
-                using (var stream = file.CreateReadStream())
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }
+                throw new CompilationFailedException(CompilationFailure);
             }
-            catch (Exception)
-            {
-                // Don't throw if reading the file fails.
-                return string.Empty;
-            }
+
+            return this;
         }
     }
 }

@@ -10,27 +10,20 @@ namespace Microsoft.AspNet.Mvc.Razor
     /// </summary>
     public class UncachedCompilationResult : CompilationResult
     {
-        private UncachedCompilationResult()
-        {
-        }
-
-        public string RazorFileContent { get; private set; }
-
         /// <summary>
-        /// Creates a <see cref="UncachedCompilationResult"/> that represents a success in compilation.
+        /// Creates a new instance of <see cref="UncachedCompilationResult"/> that represents a success in compilation.
         /// </summary>
         /// <param name="type">The compiled type.</param>
         /// <param name="compiledContent">The generated C# content that was compiled.</param>
-        /// <returns>An <see cref="UncachedCompilationResult"/> instance that indicates a successful
-        /// compilation.</returns>
-        public static UncachedCompilationResult Successful([NotNull] Type type,
-                                                           [NotNull] string compiledContent)
+        public UncachedCompilationResult([NotNull] Type type, string compiledContent)
+            : base(type)
         {
-            return new UncachedCompilationResult
-            {
-                CompiledType = type,
-                CompiledContent = compiledContent,
-            };
+            CompiledContent = compiledContent;
         }
+
+        /// <summary>
+        /// Gets the generated C# content that was compiled.
+        /// </summary>
+        public string CompiledContent { get; }
     }
 }
