@@ -24,9 +24,13 @@ namespace Microsoft.AspNet.Mvc
             {
                 var propertyType = ((PropertyInfo)member).PropertyType;
 
-                // Check if the property type is a primitive or struct and is also non-nullable.
-                // Nullable properties are validated by DefaultObjectValidator and so we do not 
-                // handle them here.
+                // When model binding happens, DefaultObjectValidator can do Required attribute validation
+                // only for reference types as value types have default values. Since it would be difficult
+                // for DefaultObjectValidator to figure this out, we depend on the formatters to handle
+                // value type validation.
+                // With the following settings here, if a value is not present on the wire for value types
+                // like primitive,struct etc., Json.net's serializer would throw exception which we catch
+                // and add it to model state.
                 if (propertyType.IsValueType() && !propertyType.IsNullableValueType())
                 {
                     property.Required = Required.AllowNull;

@@ -237,6 +237,32 @@ namespace Microsoft.AspNet.Mvc
             Assert.Contains("Required property 'Password' not found in JSON", modelErrorMessage);
         }
 
+        [Fact]
+        public async Task ThrowsException_OnSupplyingNull_ForRequiredValueType()
+        {
+            // Arrange
+            var contentBytes = Encoding.UTF8.GetBytes("{\"Id\":\"null\",\"Name\":\"Programming C#\"}");
+            var jsonFormatter = new JsonInputFormatter() { CaptureDeserilizationErrors = true };
+            var actionContext = GetActionContext(contentBytes, "application/json;charset=utf-8");
+            var metadata = new EmptyModelMetadataProvider().GetMetadataForType(
+                modelAccessor: null,
+                modelType: typeof(Book));
+            var inputFormatterContext = new InputFormatterContext(actionContext, metadata.ModelType);
+
+            // Act
+            var obj = await jsonFormatter.ReadAsync(inputFormatterContext);
+
+            // Assert
+            var book = obj as Book;
+            Assert.NotNull(book);
+            Assert.Equal(0, book.Id);
+            Assert.Equal("Programming C#", book.Name);
+            Assert.False(actionContext.ModelState.IsValid);
+
+            var modelErrorMessage = actionContext.ModelState.Values.First().Errors[0].Exception.Message;
+            Assert.Contains("Could not convert string to integer: null. Path 'Id'", modelErrorMessage);
+        }
+
         [Theory]
         [InlineData(typeof(Book))]
         [InlineData(typeof(EBook))]
