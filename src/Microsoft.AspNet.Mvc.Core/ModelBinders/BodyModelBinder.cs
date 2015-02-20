@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc.Core;
 using Microsoft.AspNet.Mvc.ModelBinding;
@@ -58,8 +59,28 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                 return new ModelBindingResult(null, bindingContext.ModelName, isModelSet: false);
             }
 
-            var model = await formatter.ReadAsync(formatterContext);
+            object model = null;
+            try
+            {
+                model = await formatter.ReadAsync(formatterContext);
+            }
+            catch (Exception ex)
+            {
+                model = GetDefaultValueForType(bindingContext.ModelType);
+                bindingContext.ModelState.AddModelError(bindingContext.ModelName, ex);
+            }
+
             return new ModelBindingResult(model, bindingContext.ModelName, isModelSet: true);
+        }
+
+        private object GetDefaultValueForType(Type modelType)
+        {
+            if (modelType.GetTypeInfo().IsValueType)
+            {
+                return Activator.CreateInstance(modelType);
+            }
+
+            return null;
         }
     }
 }
