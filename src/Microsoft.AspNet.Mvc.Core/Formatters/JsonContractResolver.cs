@@ -24,6 +24,9 @@ namespace Microsoft.AspNet.Mvc
             {
                 var propertyType = ((PropertyInfo)member).PropertyType;
 
+                // Check if the property type is a primitive or struct and is also non-nullable.
+                // Nullable properties are validated by DefaultObjectValidator and so we do not 
+                // handle them here.
                 if (propertyType.IsValueType() && !propertyType.IsNullableValueType())
                 {
                     property.Required = Required.AllowNull;
