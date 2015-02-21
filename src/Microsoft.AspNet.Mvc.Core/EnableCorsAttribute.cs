@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Cors;
 using Microsoft.AspNet.Cors.Core;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Mvc.Core;
@@ -15,90 +16,22 @@ using Microsoft.AspNet.Routing;
 using Microsoft.AspNet.WebUtilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
+using Microsoft.Framework.OptionsModel;
 
 namespace Microsoft.AspNet.Mvc
 {
-    public class EnableCorsAttribute : Attribute, IAsyncAuthorizationFilter, ICorsPolicyProvider
+    public class CorsAuthorizationFilter : IAsyncAuthorizationFilter
     {
-        private ICorsPolicy _corsPolicy = new CorsPolicy();
+        private readonly CorsPolicy _corsPolicy;
         private bool _originsValidated;
 
-        /// <summary>
-        /// Gets the headers that the resource might use and can be exposed.
-        /// </summary>
-        public IList<string> ExposedHeaders
+        public CorsAuthorizationFilter(CorsPolicy corsPolicy)
         {
-            get
-            {
-                return _corsPolicy.ExposedHeaders;
-            }
-        }
-
-        /// <summary>
-        /// Gets the headers that are supported by the resource.
-        /// </summary>
-        public IList<string> Headers
-        {
-            get
-            {
-                return _corsPolicy.Headers;
-            }
-        }
-
-        /// <summary>
-        /// Gets the methods that are supported by the resource.
-        /// </summary>
-        public IList<string> Methods
-        {
-            get
-            {
-                return _corsPolicy.Methods;
-            }
-        }
-
-        /// <summary>
-        /// Gets the origins that are allowed to access the resource.
-        /// </summary>
-        public IList<string> Origins
-        {
-            get
-            {
-                return _corsPolicy.Origins;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the number of seconds the results of a preflight request can be cached.
-        /// </summary>
-        public long PreflightMaxAge
-        {
-            get
-            {
-                return _corsPolicy.PreflightMaxAge ?? -1;
-            }
-            set
-            {
-                _corsPolicy.PreflightMaxAge = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the resource supports user credentials in the request.
-        /// </summary>
-        public bool SupportsCredentials
-        {
-            get
-            {
-                return _corsPolicy.SupportsCredentials;
-            }
-            set
-            {
-                _corsPolicy.SupportsCredentials = value;
-            }
+            _corsPolicy = corsPolicy;
         }
 
         /// <inheritdoc />
-        public Task<ICorsPolicy> GetCorsPolicyAsync(ICorsRequestContext context)
+        public Task<CorsPolicy> GetCorsPolicyAsync(ICorsRequestContext context)
         {
             if (!_originsValidated)
             {
@@ -116,7 +49,7 @@ namespace Microsoft.AspNet.Mvc
             if (corsContext.IsCorsRequest)
             {
                 var engine = context.HttpContext.RequestServices.GetRequiredService<ICorsEngine>();
-                var policy = await GetCorsPolicyAsync(corsContext);
+                var policy = _corsPolicy;
                 var result = engine.EvaluatePolicy(corsContext, policy);
                 if (corsContext.IsPreflight)
                 {
@@ -197,6 +130,19 @@ namespace Microsoft.AspNet.Mvc
                             CultureInfo.CurrentCulture,
                             "SRResources.OriginMustNotContainPathQueryOrFragment",
                             origin));
+                }
+            }
+        }
+
+        private static void AddCommaSeparatedValuesToCollection(string commaSeparatedValues, IList<string> collection)
+        {
+            string[] values = commaSeparatedValues.Split(',');
+            for (int i = 0; i < values.Length; i++)
+            {
+                string value = values[i].Trim();
+                if (!String.IsNullOrEmpty(value))
+                {
+                    collection.Add(value);
                 }
             }
         }

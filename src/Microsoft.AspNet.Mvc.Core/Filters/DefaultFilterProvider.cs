@@ -30,10 +30,15 @@ namespace Microsoft.AspNet.Mvc.Filters
             if (context.ActionContext.ActionDescriptor.FilterDescriptors != null)
             {
                 var corsFilter = context.Results.SingleOrDefault(filter => filter.Descriptor.Filter is ICorsPolicyProvider);
-                ProvideFilter(context, corsFilter);
-                foreach (var item in context.Results.Where(filter => !(filter is ICorsPolicyProvider)))
+                IEnumerable<FilterItem> results = context.Results;
+                if (corsFilter != null)
                 {
+                    ProvideFilter(context, corsFilter);
+                    results = context.Results.Where(filter => !(filter is ICorsPolicyProvider));
+                }
 
+                foreach (var item in results)
+                {
                     ProvideFilter(context, item);
                 }
             }

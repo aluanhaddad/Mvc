@@ -14,209 +14,211 @@ using Microsoft.AspNet.Routing;
 
 namespace Microsoft.AspNet.Mvc
 {
-    public class CorsHttpRequest //: HttpRequest
+    public class CorsHttpRequest : HttpRequest
     {
-        //private readonly HttpRequest _httpRequest;
+        private readonly HttpRequest _httpRequest;
+        private readonly string _method;
 
-        //public CorsHttpRequest(HttpRequest httpRequest)
-        //{
-        //    _httpRequest = httpRequest;
-        //}
+        public CorsHttpRequest(HttpRequest httpRequest, string corsMethod)
+        {
+            _httpRequest = httpRequest;
+            _method = corsMethod;
+        }
 
-        //public override Stream Body
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.Body;
-        //    }
+        public override Stream Body
+        {
+            get
+            {
+                return _httpRequest.Body;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.Body = value;
+            }
+        }
 
-        //public override long? ContentLength
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
+        public override long? ContentLength
+        {
+            get
+            {
+                return _httpRequest.ContentLength;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.ContentLength = value;
+            }
+        }
 
-        //public override string ContentType
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
+        public override string ContentType
+        {
+            get
+            {
+                return _httpRequest.ContentType;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.ContentType = value;
+            }
+        }
 
-        //public override IReadableStringCollection Cookies
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
-        //}
+        public override IReadableStringCollection Cookies
+        {
+            get
+            {
+                return _httpRequest.Cookies;
+            }
+        }
 
-        //public override IFormCollection Form
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
+        public override IFormCollection Form
+        {
+            get
+            {
+                return _httpRequest.Form;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.Form = value;
+            }
+        }
 
-        //public override bool HasFormContentType
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
-        //}
+        public override bool HasFormContentType
+        {
+            get
+            {
+                return _httpRequest.HasFormContentType;
+            }
+        }
 
-        //public override IHeaderDictionary Headers
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
-        //}
+        public override IHeaderDictionary Headers
+        {
+            get
+            {
+                return _httpRequest.Headers;
+            }
+        }
 
-        //public override HostString Host
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
+        public override HostString Host
+        {
+            get
+            {
+                return _httpRequest.Host;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.Host = value;
+            }
+        }
 
-        //public override HttpContext HttpContext
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
-        //}
+        public override HttpContext HttpContext
+        {
+            get
+            {
+                return _httpRequest.HttpContext;
+            }
+        }
 
-        //public override bool IsHttps
-        //{
-        //    get
-        //    {
-        //        return _httpRequest.
-        //    }
-        //}
+        public override bool IsHttps
+        {
+            get
+            {
+                return _httpRequest.IsHttps;
+            }
+        }
 
-        //public override string Method
-        //{
-        //    get
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+        public override string Method
+        {
+            get
+            {
+                return _method;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                throw new NotSupportedException();
+            }
+        }
 
-        //public override PathString Path
-        //{
-        //    get
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+        public override PathString Path
+        {
+            get
+            {
+                return _httpRequest.Path;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.Path = value;
+            }
+        }
 
-        //public override PathString PathBase
-        //{
-        //    get
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+        public override PathString PathBase
+        {
+            get
+            {
+                return _httpRequest.PathBase;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.PathBase = value;
+            }
+        }
 
-        //public override string Protocol
-        //{
-        //    get
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+        public override string Protocol
+        {
+            get
+            {
+                return _httpRequest.Protocol;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.Protocol = value;
+            }
+        }
 
-        //public override IReadableStringCollection Query
-        //{
-        //    get
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+        public override IReadableStringCollection Query
+        {
+            get
+            {
+                return _httpRequest.Query;
+            }
+        }
 
-        //public override QueryString QueryString
-        //{
-        //    get
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+        public override QueryString QueryString
+        {
+            get
+            {
+                return _httpRequest.QueryString;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.QueryString = value;
+            }
+        }
 
-        //public override string Scheme
-        //{
-        //    get
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+        public override string Scheme
+        {
+            get
+            {
+                return _httpRequest.Scheme;
+            }
 
-        //    set
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            set
+            {
+                _httpRequest.Scheme = value;
+            }
+        }
 
-        //public override Task<IFormCollection> ReadFormAsync(CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public override Task<IFormCollection> ReadFormAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _httpRequest.ReadFormAsync(cancellationToken);
+        }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNet.Cors;
 using Microsoft.AspNet.Mvc.Description;
 using Microsoft.AspNet.Mvc.Filters;
 using Microsoft.AspNet.Mvc.Routing;
@@ -22,6 +23,7 @@ namespace Microsoft.AspNet.Mvc.ApplicationModels
         private readonly IActionModelBuilder _actionModelBuilder;
         private readonly ILogger _logger;
         private readonly AuthorizationOptions _authorizationOptions;
+        private readonly CorsOptions _corsOptions;
 
         /// <summary>
         /// Creates a new <see cref="DefaultControllerModelBuilder"/>.
@@ -30,11 +32,13 @@ namespace Microsoft.AspNet.Mvc.ApplicationModels
         public DefaultControllerModelBuilder(
             IActionModelBuilder actionModelBuilder, 
             ILoggerFactory loggerFactory, 
-            IOptions<AuthorizationOptions> options)
+            IOptions<AuthorizationOptions> options, 
+            IOptions<CorsOptions> corsOptions)
         {
             _actionModelBuilder = actionModelBuilder;
             _logger = loggerFactory.Create<DefaultControllerModelBuilder>();
             _authorizationOptions = options?.Options ?? new AuthorizationOptions();
+            _corsOptions = corsOptions?.Options ?? new CorsOptions();
         }
 
         /// <inheritdoc />
@@ -79,11 +83,18 @@ namespace Microsoft.AspNet.Mvc.ApplicationModels
             AddRange(controllerModel.Filters, attributes.OfType<IFilter>());
             AddRange(controllerModel.RouteConstraints, attributes.OfType<IRouteConstraintProvider>());
 
+            //var corsPolicy = _corsOptions.GetPolicy(;
+            //if (corsPolicy != null)
+            //{
+            //    controllerModel.Filters.Add(new AuthorizeFilter(_corsOptions));
+            //}
+
             var policy = AuthorizationPolicy.Combine(_authorizationOptions, attributes.OfType<AuthorizeAttribute>());
             if (policy != null)
             {
                 controllerModel.Filters.Add(new AuthorizeFilter(policy));
             }
+
 
             AddRange(
                 controllerModel.AttributeRoutes,

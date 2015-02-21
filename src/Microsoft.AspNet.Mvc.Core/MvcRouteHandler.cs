@@ -48,7 +48,7 @@ namespace Microsoft.AspNet.Mvc
             using (_logger.BeginScope("MvcRouteHandler.RouteAsync"))
             {
                 var actionSelector = services.GetRequiredService<IActionSelector>();
-                var currentVerb = context.HttpContext.Request.Method;
+                var currentVerb = context;
 
                 ActionDescriptor actionDescriptor;
                 try
@@ -62,7 +62,12 @@ namespace Microsoft.AspNet.Mvc
                             // change the data in the route context to affect action selection.
                             // If it is a pre flight request then this needs to be updated.
                             // for a normal request we do not need to change the http verb.
-                            context.HttpContext.Request.Method = corsContext.HttpMethod;
+                            var corsHttpContext = new CorsHttpContext(context.HttpContext, corsContext.AccessControlRequestMethod);
+                            context = new RouteContext(corsHttpContext)
+                            {
+                                IsHandled = context.IsHandled,
+                                RouteData = context.RouteData
+                            };
                         }
                     }
 
@@ -75,7 +80,7 @@ namespace Microsoft.AspNet.Mvc
                 }
                 finally
                 {
-                    context.HttpContext.Request.Method = currentVerb;
+                    context = currentVerb;
                 }
 
                 // Replacing the route data allows any code running here to dirty the route values or data-tokens

@@ -13,156 +13,150 @@ using Microsoft.AspNet.Routing;
 
 namespace Microsoft.AspNet.Mvc
 {
-    public class CorsHttpContext
+    public class CorsHttpContext : HttpContext
     {
-        //private readonly HttpContext _httpContext;
-        //private readonly HttpRequest _httpRequest;
+        private readonly HttpContext _httpContext;
+        private readonly HttpRequest _httpRequest;
 
-        //public CorsHttpContext(HttpContext context)
-        //{
-        //    _httpContext = context;
-        //    _httpRequest = GetCorsHttpRequest(context.Request);
-        //}
+        public CorsHttpContext(HttpContext context, string corsMethod)
+        {
+            _httpContext = context;
+            _httpRequest = new CorsHttpRequest(context.Request, corsMethod);
+        }
 
-        //private HttpRequest GetCorsHttpRequest(HttpRequest request)
-        //{
-           
+        public override IServiceProvider ApplicationServices
+        {
+            get
+            {
+                return _httpContext.ApplicationServices;
+            }
 
-        //}
+            set
+            {
+                _httpContext.ApplicationServices = value;
+            }
+        }
 
-        //public override IServiceProvider ApplicationServices
-        //{
-        //    get
-        //    {
-        //        return _httpContext.ApplicationServices;
-        //    }
+        public override bool IsWebSocketRequest
+        {
+            get
+            {
+                return _httpContext.IsWebSocketRequest;
+            }
+        }
 
-        //    set
-        //    {
-        //        _httpContext.ApplicationServices = value;
-        //    }
-        //}
+        public override IDictionary<object, object> Items
+        {
+            get
+            {
+                return _httpContext.Items;
+            }
+        }
 
-        //public override bool IsWebSocketRequest
-        //{
-        //    get
-        //    {
-        //        return _httpContext.IsWebSocketRequest;
-        //    }
-        //}
+        public override HttpRequest Request
+        {
+            get
+            {
+                return _httpRequest;
+            }
+        }
 
-        //public override IDictionary<object, object> Items
-        //{
-        //    get
-        //    {
-        //        return _httpContext.Items;
-        //    }
-        //}
+        public override CancellationToken RequestAborted
+        {
+            get
+            {
+                return _httpContext.RequestAborted;
+            }
+        }
 
-        //public override HttpRequest Request
-        //{
-        //    get
-        //    {
-        //        return _httpRequest;
-        //    }
-        //}
+        public override IServiceProvider RequestServices
+        {
+            get
+            {
+                return _httpContext.RequestServices;
+            }
 
-        //public override CancellationToken RequestAborted
-        //{
-        //    get
-        //    {
-        //        return _httpContext.RequestAborted;
-        //    }
-        //}
+            set
+            {
+                _httpContext.RequestServices = value;
+            }
+        }
 
-        //public override IServiceProvider RequestServices
-        //{
-        //    get
-        //    {
-        //        return _httpContext.RequestServices;
-        //    }
+        public override HttpResponse Response
+        {
+            get
+            {
+                return _httpContext.Response;
+            }
+        }
 
-        //    set
-        //    {
-        //        _httpContext.RequestServices = value;
-        //    }
-        //}
+        public override ISessionCollection Session
+        {
+            get
+            {
+                return _httpContext.Session;
+            }
+        }
 
-        //public override HttpResponse Response
-        //{
-        //    get
-        //    {
-        //        return _httpContext.Response;
-        //    }
-        //}
+        public override ClaimsPrincipal User
+        {
+            get
+            {
+                return _httpContext.User;
+            }
 
-        //public override ISessionCollection Session
-        //{
-        //    get
-        //    {
-        //        return _httpContext.Session;
-        //    }
-        //}
+            set
+            {
+                _httpContext.User = value;
+            }
+        }
 
-        //public override ClaimsPrincipal User
-        //{
-        //    get
-        //    {
-        //        return _httpContext.User;
-        //    }
+        public override IList<string> WebSocketRequestedProtocols
+        {
+            get
+            {
+                return _httpContext.WebSocketRequestedProtocols;
+            }
+        }
 
-        //    set
-        //    {
-        //        _httpContext.User = value;
-        //    }
-        //}
+        public override void Abort()
+        {
+            _httpContext.Abort();
+        }
 
-        //public override IList<string> WebSocketRequestedProtocols
-        //{
-        //    get
-        //    {
-        //        return _httpContext.WebSocketRequestedProtocols;
-        //    }
-        //}
+        public override Task<WebSocket> AcceptWebSocketAsync(string subProtocol)
+        {
+            return _httpContext.AcceptWebSocketAsync(subProtocol);
+        }
 
-        //public override void Abort()
-        //{
-        //    _httpContext.Abort();
-        //}
+        public override IEnumerable<AuthenticationResult> Authenticate(IEnumerable<string> authenticationTypes)
+        {
+            return _httpContext.Authenticate(authenticationTypes);
+        }
 
-        //public override Task<WebSocket> AcceptWebSocketAsync(string subProtocol)
-        //{
-        //    return _httpContext.AcceptWebSocketAsync(subProtocol);
-        //}
+        public override Task<IEnumerable<AuthenticationResult>> AuthenticateAsync(IEnumerable<string> authenticationTypes)
+        {
+            return _httpContext.AuthenticateAsync(authenticationTypes);
+        }
 
-        //public override IEnumerable<AuthenticationResult> Authenticate(IEnumerable<string> authenticationTypes)
-        //{
-        //    return _httpContext.Authenticate(authenticationTypes);
-        //}
+        public override void Dispose()
+        {
+            _httpContext.Dispose();
+        }
 
-        //public override Task<IEnumerable<AuthenticationResult>> AuthenticateAsync(IEnumerable<string> authenticationTypes)
-        //{
-        //    return _httpContext.AuthenticateAsync(authenticationTypes);
-        //}
+        public override IEnumerable<AuthenticationDescription> GetAuthenticationTypes()
+        {
+            return _httpContext.GetAuthenticationTypes();
+        }
 
-        //public override void Dispose()
-        //{
-        //    _httpContext.Dispose();
-        //}
+        public override object GetFeature(Type type)
+        {
+            return _httpContext.GetFeature(type);
+        }
 
-        //public override IEnumerable<AuthenticationDescription> GetAuthenticationTypes()
-        //{
-        //    return _httpContext.GetAuthenticationTypes();
-        //}
-
-        //public override object GetFeature(Type type)
-        //{
-        //    return _httpContext.GetFeature(type);
-        //}
-
-        //public override void SetFeature(Type type, object instance)
-        //{
-        //    _httpContext.SetFeature(type, instance);
-        //}
+        public override void SetFeature(Type type, object instance)
+        {
+            _httpContext.SetFeature(type, instance);
+        }
     }
 }
